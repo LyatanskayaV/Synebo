@@ -1,0 +1,22 @@
+trigger qq on Package__c(after insert, after update, after delete, after undelete) {
+   List<Opportunity> ct = new List<Opportunity>();
+   List<Id> custord = new List<Id>(); 
+  
+   {
+     for(Package__c test:Trigger.New) {     
+        custord.add(test.Opportunity__c);   
+     }
+   }
+   
+   AggregateResult[] groupedResults = [SELECT COUNT(Id), Opportunity__c FROM Package__c 
+                                       where Opportunity__c IN :custord 
+                                       GROUP BY Opportunity__c ];  
+   for(AggregateResult ar: groupedResults) {     
+     Id custid = (ID)ar.get('Opportunity__c');     
+     Integer count = (INTEGER)ar.get('expr0');     
+     Opportunity cust1 = new Opportunity(Id=custid);   
+     cust1.number_of_packages__c = count;   
+     ct.add(cust1); 
+   }
+   update ct;
+}

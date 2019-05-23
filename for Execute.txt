@@ -1,0 +1,13 @@
+qq trigger:
+
+Package__c a = new Package__c(Name='Test package', Opportunity__c = '0062p00000yL04EAAS');
+insert a;
+
+qq2 trigger:
+
+OpportunityLineItem a = new OpportunityLineItem(OpportunityId ='0062p00000yL04EAAS',
+                                                Quantity = 2,
+                                                Package__c = 'a052p0000169OE8AAM', 
+                                               TotalPrice = 1000,
+                                               PricebookEntryId= '01u2p00000gVU9IAAW');
+insert a;

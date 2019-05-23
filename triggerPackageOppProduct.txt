@@ -1,0 +1,22 @@
+trigger qq2 on OpportunityLineItem (after insert, after update, after delete, after undelete) {
+   List<Package__c> ct = new List<Package__c>();
+   List<Id> custord = new List<Id>(); 
+  
+   {
+     for(OpportunityLineItem test:Trigger.New) {     
+        custord.add(test.Package__c);   
+     }
+   }
+   
+   AggregateResult[] groupedResults = [SELECT COUNT(Id), Package__c FROM OpportunityLineItem 
+                                       where Package__c IN :custord 
+                                       GROUP BY Package__c ];  
+   for(AggregateResult ar: groupedResults) {     
+     Id custid = (ID)ar.get('Package__c');     
+     Integer count = (INTEGER)ar.get('expr0');     
+     Package__c cust1 = new Package__c(Id=custid);   
+     cust1.number_of_products_c__c = count;   
+     ct.add(cust1); 
+   }
+   update ct;
+}
