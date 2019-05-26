@@ -1,0 +1,16 @@
+public class OpportunityController {
+    private String sortOrder = 'Name';
+    
+public List<Opportunity> getOpportunity() {    
+    List<Opportunity> results = Database.query(
+        'SELECT Id, Name, Amount, CloseDate ' +
+        'FROM Opportunity ' +
+        'ORDER BY ' + sortOrder + ' ASC ' +
+        'LIMIT 10'
+    );
+    return results;
+} 
+    public void sortByName(){
+        this.sortOrder = 'Name';
+    }
+}
