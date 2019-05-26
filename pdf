@@ -1,0 +1,21 @@
+<apex:page standardController="Opportunity" recordSetVar="opportunity" renderAs="PDF">
+    <apex:pageBlock title="Opportunity List">
+        <apex:pageBlockTable value="{! opportunity }" var="opp">
+            <div>
+                <apex:column value="{! opp.Name }"/>
+            </div>
+            <div>
+                <apex:column value="{! opp.Amount }"/>
+            </div>
+            <div>
+            	<apex:column value="{! opp.Account.Name }"/>
+            </div>
+            <div>
+                <apex:column value="{! opp.Contract.Name }"/>
+            </div>
+            <div>
+                <apex:column value="{! opp.Owner.Name }"/>
+            </div>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>
