@@ -1,0 +1,11 @@
+public class myAnimal{
+    public animalZ animal{get;set;}
+    
+    public class animalZ{
+        public String animalID{get;set;}
+    	public String name{get;set;}
+    	public String eats{get;set;}
+    	public String says{get;set;}
+    }
+   
+}
