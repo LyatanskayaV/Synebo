@@ -1,0 +1,27 @@
+global class MyBatch implements Database.Batchable<sObject> {
+    global DataBase.QueryLocator start(Database.BatchableContext bc){
+        return Database.getQueryLocator([select id, name, opportunity__c from Package__c]);
+    }
+    global void execute(Database.BatchableContext bc, List<Package__c> pack){
+        Set<Id> custord = new Set<Id>();
+       	 for(Package__c test : pack) {     
+        	custord.add(test.Opportunity__c);   
+   		  }
+  	 AggregateResult[] groupedResults = [SELECT COUNT(Id), Opportunity__c FROM Package__c 
+                                       where Opportunity__c IN :custord GROUP BY Opportunity__c ]; 
+     List<Opportunity> ct = new List<Opportunity>();
+     for(AggregateResult ar: groupedResults) { 
+     Id custid = (ID)ar.get('Opportunity__c'); 
+         if(custid != null){
+     System.debug('QQ'+ custId);
+     Integer count = (INTEGER)ar.get('expr0');     
+     Opportunity cust1 = new Opportunity(Id=custid);   
+     cust1.Number_of_packages__c = count;   
+     ct.add(cust1);
+         }else System.debug('Null id find');
+   }
+   update ct;
+    }
+    global void finish(Database.BatchableContext bc){
+    }
+}

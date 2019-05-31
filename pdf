@@ -1,0 +1,9 @@
+<apex:page controller="OpportunityController" renderAs="PDF">
+    <apex:pageBlock title="Opportunity List">
+        <apex:pageBlockTable value="{!opportunity}" var="opp">
+            <apex:column value="{! opp.Name }"/>               
+            <apex:column value="{! opp.Amount }"/>                
+            	<apex:column value="{! opp.CloseDate }"/>      
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>
