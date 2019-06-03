@@ -1,0 +1,42 @@
+global class MyBatch implements Database.Batchable<sObject>, Database.AllowsCallouts, Database.Stateful{
+    global DataBase.QueryLocator start(Database.BatchableContext bc){
+               List<ID> animalID = new List<ID>();
+        List<Animal__c> anList = [SELECT NAME, SAYS__C, EATS__C,animal_ID__c  from ANIMAL__C];
+        System.debug('anList = '+ anList);
+    for(Animal__c animal: anList){
+        if(animal.animal_id__c != null)
+        animalID.add(animal.ID);
+	}
+                System.debug('animalID = '+ animalID);
+
+        return Database.getQueryLocator([SELECT NAME, SAYS__C, EATS__C,animal_ID__c  from ANIMAL__C where id =:animalID]);
+    }
+    global void execute(Database.BatchableContext bc, List<Animal__c> animalList){
+      Http http = new Http();
+        HttpRequest request = new HttpRequest();
+        request.setMethod('GET');
+        Map<String, myAnimal> mapAnimal = new Map<String, myAnimal>();
+                System.debug('mapAnimal'+mapAnimal);
+
+        for(Animal__c an: animalList){
+            MyAnimal myAnimal;
+            if(!mapAnimal.containsKey(String.valueOf(an.animal_id__c))){
+        	request.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/'+an.animal_ID__c);
+        	HttpResponse response = http.send(request);
+        	if (response.getStatusCode() == 200) {
+            	String jsonstr = response.getBody();
+            	myAnimal = (myAnimal)JSON.deserialize(jsonstr, myAnimal.class);
+            	mapAnimal.put(myAnimal.animal.animalID, myAnimal);
+            }
+         else myAnimal = mapAnimal.get(String.valueOf(an.animal_id__c));
+         an.Name = myAnimal.animal.name;
+         an.eats__c = myAnimal.animal.eats;
+         an.says__c = myAnimal.animal.says;
+        }
+        update animalList;
+    }
+    }
+    
+    global void finish(Database.BatchableContext bc){
+    }
+}
