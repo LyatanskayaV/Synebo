@@ -1,27 +1,29 @@
 global class AnimalCallout {
     @future(callout = true)
-    public static void makeGetCallout(ID an_id) {
-        Animal__c animalS = [SELECT NAME, SAYS__C, EATS__C,animal_ID__c  from ANIMAL__C where id =:an_id];
-        String a = animalS.animal_ID__c;
+    public static void makeGetCallout(List<ID> animalID) {
+        List<Animal__c> animalList = [SELECT NAME, SAYS__C, EATS__C,animal_ID__c  from ANIMAL__C where id =:animalID];
         Http http = new Http();
         HttpRequest request = new HttpRequest();
-        request.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/'+ a);
         request.setMethod('GET');
-        HttpResponse response = http.send(request);
-        if (response.getStatusCode() == 200) {
-            String str = response.getBody();
-            System.debug('str '+ str);
-            myAnimal anim = (myAnimal)JSON.deserialize(str, myAnimal.class);
-            animalS.name = anim.animal.name;
-            animalS.eats__c = anim.animal.eats;
-            animalS.Says__c = anim.animal.Says;
-            update animalS;
-            System.debug('Animal with fields '+ anim.animal.name);
-        }if (response.getStatusCode() != 201) {
-  		  System.debug('The status code returned was not expected: ' +
-        response.getStatusCode() + ' ' + response.getStatus());
-		}else{
-            System.debug(response.getBody());
-		}
+        Map<String, myAnimal> mapAnimal = new Map<String, myAnimal>();
+        for(Animal__c an: animalList){
+            MyAnimal myAnimal;
+            if(!mapAnimal.containsKey(String.valueOf(an.animal_id__c))){
+        	request.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/'+an.animal_ID__c);
+        	HttpResponse response = http.send(request);
+        	if (response.getStatusCode() == 200) {
+            	String jsonstr = response.getBody();
+            	myAnimal = (myAnimal)JSON.deserialize(jsonstr, myAnimal.class);
+            	mapAnimal.put(myAnimal.animal.animalID, myAnimal);
+                System.debug('SObject alreade exist');}
+            }
+         else myAnimal = mapAnimal.get(String.valueOf(an.animal_id__c));
+         an.Name = myAnimal.animal.name;
+         an.eats__c = myAnimal.animal.eats;
+         an.says__c = myAnimal.animal.says;
+         System.debug('Animal:'+ an);
+        }
+        update animalList;
     }
 }
+           

@@ -1,7 +1,8 @@
 trigger animalTrigger on Animal__c (after insert) {
-    Animal__c animal = Trigger.New[0];
-    ID i = animal.Id;
-         if (i != NULL) {  
-        AnimalCallout.makeGetCallout(i);    
-    }else System.debug('ID = null');
+    List<ID> animalID = new List<ID>();
+    for(Animal__c animal: Trigger.New){
+        if(animal.animal_id__c != null)
+        animalID.add(animal.ID);
+        AnimalCallout.makeGetCallout(animalID);  
+	}
 }
